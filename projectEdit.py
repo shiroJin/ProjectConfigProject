@@ -1,6 +1,12 @@
 #!/usr/bin/python3
+import git
+import os
+import json
 
 def createNewApp(appInfo):
+  with open('./config.json', 'w') as fp:
+    json.dump(appInfo, fp)
+
   targetBranch, tag = None, None
   projectPath = appInfo["projectPath"]
   code = appInfo["code"]
@@ -14,15 +20,14 @@ def createNewApp(appInfo):
 
   if targetBranch:
     raise('branch already existed')
-    exit(1)
 
   for t in repo.tags:
     if t.name == tagName:
       tag = t
+      break
 
   if not tag:
-    print('can not find tag')
-    exit(1)
+    raise('can not find tag')
 
   targetBranch = repo.create_head("proj-%s-snapshot" % (code.lower()), tag.commit)
 
@@ -42,3 +47,6 @@ def createNewApp(appInfo):
     exit(0)
   else:
     exit(1)
+
+def editApp(appInfo):
+  pass
