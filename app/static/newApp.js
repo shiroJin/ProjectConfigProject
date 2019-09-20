@@ -18,7 +18,7 @@ function formData_to_json(formData) {
 $(document).ready(function() {
   $('button#submitIcon').click(function() {
     $.ajax({
-      url: 'http://localhost:5000/upload',
+      url: 'http://localhost:5000/image/upload',
       type: 'post',
       cache: false,
       data: new FormData($('#iconForm')[0]),
@@ -33,7 +33,7 @@ $(document).ready(function() {
   })
   $('button#submitLaunch').click(function() {
     $.ajax({
-      url: 'http://localhost:5000/upload',
+      url: 'http://localhost:5000/image/upload',
       type: 'post',
       cache: false,
       data: new FormData($('#launchForm')[0]),
@@ -52,7 +52,7 @@ $(document).ready(function() {
     if (icons) postData['icons'] = icons
     if (launchs) postData['launchs'] = launchs
     $.ajax({
-      url: 'http://localhost:5000/newApp/butler',
+      url: 'http://localhost:5000/project/newApp/butler',
       data: JSON.stringify(postData),
       type: 'post',
       contentType: 'application/json',

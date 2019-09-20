@@ -1,4 +1,3 @@
-#!/usr/bin/python3
 import git
 import os
 import json
