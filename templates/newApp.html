@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+  <head>
+    <title>Create New App</title>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="{{ url_for('static', filename='newApp.js') }}"></script>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='newApp.css') }}">
+  </head>
+  <body>
+    <div class="img-container">
+      <h2>APP Icon 上传</h2>
+      <form id="iconForm" enctype=multipart/form-data>
+        <input type=file name=image accept="image/*" multiple>
+      </form>
+      <button id="submitIcon">Upload Icon</button>
+      <div id="iconDisplay"></div>
+    </div>
+
+    <div class="img-container">
+      <h2>APP 启动页 上传</h2>
+      <form id="launchForm" enctype=multipart/form-data>
+        <input type=file name=image accept="image/*" multiple>
+      </form>
+      <button id="submitLaunch">Upload Launch</button>
+      <div id="launchDisplay"></div>
+    </div>
+
+    <h2>配置信息</h2>
+    <form id="contentForm" name="config" enctype="application/x-www-form-urlencoded">
+      <p>displayName<p>
+      <input type="text" name="displayName">
+      <p>version<p>
+      <input type="text" name="version">
+      <p>build<p>
+      <input type="text" name="build">
+      <p>provisionPodfile<p>
+      <input type="text" name="provisionPodfile">
+      <p>code<p>
+      <input type="text" name="code">
+      <p>tag<p>
+      <input type="text" name="tag">
+      <p>targetName<p>
+      <input type="text" name="targetName">
+      <p>projectPath<p>
+      <input type="text" name="projectPath">
+      <p>bundleId<p>
+      <input type="text" name="bundleId">
+      <p>kDistributioneBaseCommonUrl<p>
+      <input type="text" name="kDistributioneBaseCommonUrl">
+      <p>kJPushAppKeyString<p>
+      <input type="text" name="kJPushAppKeyString">
+      <p>kJPushChannelID<p>
+      <input type="text" name="kJPushChannelID">
+      <p>kUMengAppKeyString<p>
+      <input type="text" name="kUMengAppKeyString">
+      <p>kUMengChannelID<p>
+      <input type="text" name="kUMengChannelID">
+      <p>kWechatAppId<p>
+      <input type="text" name="kWechatAppId">
+      <p>kWechatAppKey<p>
+      <input type="text" name="kWechatAppKey">
+      <p>kTencentQQAppId<p>
+      <input type="text" name="kTencentQQAppId">
+      <p>kTencentQQAppKey<p>
+      <input type="text" name="kTencentQQAppKey">
+      <p>AESSecretKey<p>
+      <input type="text" name="AESSecretKey">
+      <p>AESSecretVI<p>
+      <input type="text" name="AESSecretVI">
+      <p>kPaykey<p>
+      <input type="text" name="kPaykey">
+      <p>kIV<p>
+      <input type="text" name="kIV">
+      <p>kAPIVersion<p>
+      <input type="text" name="kAPIVersion">
+      <p>kAPISalt<p>
+      <input type="text" name="kAPISalt">
+      <p>kMobiletype<p>
+      <input type="text" name="kMobiletype">
+      <p>kCompanyCode<p>
+      <input type="text" name="kCompanyCode">
+      <p>kVersionCheckType<p>
+      <input type="text" name="kVersionCheckType">    
+    </form>
+  </body>
+  <footer>
+    <button id="submit">click me</button>
+  </footer>
+</html>

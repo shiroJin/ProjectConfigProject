@@ -1,0 +1,33 @@
+{
+  "displayName" : "APP名称",
+  "version" : "1.0",
+  "build" : "2",
+  "provisionPodfile" : "xxxx",
+  "code" : "Script",
+  "tag" : "Fusion_1.8.2",
+  "targetName" : "ButlerForScript",
+  "projectPath" : "/Users/remain/Desktop/script-work/ButlerForFusion",
+  "bundleId" : "com.uama.ButlerForZhwgEnterprise",
+  "kDistributioneBaseCommonUrl" : "https://cloud.gszhwgxz.cn/",
+  "kJPushAppKeyString" : "41c2ac3023c23f3673702dae",
+  "kJPushChannelID" : "开发",
+  "kUMengAppKeyString" : "5d637bd4570df31d310008ed",
+  "kUMengChannelID" : "开发",
+  "kWechatAppId" : "",
+  "kWechatAppKey" : "",
+  "kTencentQQAppId" : "",
+  "kTencentQQAppKey" : "",
+  "AESSecretKey" : "Remain2017150705",
+  "AESSecretVI" : "201707Remain1505",
+  "kPaykey" : "0360b05dd94211e5",
+  "kIV" : "5cb19168345211e6",
+  "kAPIVersion" : "2",
+  "kAPISalt" : "uama1209",
+  "kMobiletype" : "185",
+  "kCompanyCode" : "wg",
+  "kVersionCheckType" : "ios-wuguan-wanggu",
+  "images" : {
+    "icons" : "/Users/remain/Desktop/projectConfigProject/Sources/icons",
+    "launchs" : "/Users/remain/Desktop/projectConfigProject/Sources/launchs"
+  }
+}
