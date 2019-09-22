@@ -4,7 +4,8 @@ def allowed_file(filename):
 
 def projectPath(platform):
   if platform == 'butler':
-    return '/Users/remain/Desktop/script-work/ButlerForFusion'
+    # return '/Users/remain/Desktop/script-work/ButlerForFusion'
+    return '/Users/mashiro_jin/Desktop/LMWork/ButlerForFusion'
   else:
     return ''
 

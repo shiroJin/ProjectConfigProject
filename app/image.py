@@ -1,6 +1,6 @@
-from flask import Blueprint, send_from_directory, make_response, request
+from flask import Blueprint, send_from_directory, make_response, request, current_app
 from werkzeug import secure_filename
-from . import app, utils
+from . import utils
 import os
 import json
 
@@ -26,4 +26,4 @@ def upload():
 
 @bp.route('/<filename>', methods=('GET', 'POST'))
 def uploaded_image(filename):
-  return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+  return send_from_directory(current_app.config['UPLOAD_FOLDER'], filename)

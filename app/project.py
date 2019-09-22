@@ -29,3 +29,8 @@ def newApplication(platform):
 @bp.route('/index', methods=['GET', 'POST'])
 def index():
   return render_template('newApp.html')
+
+@bp.route('/appInfo/<platform>', methods=['GET'])
+def appInfo(platform):
+  info = projectEdit.fetchAppInfo(platform, 'remain')
+  return render_template("app-info.html", appInfo=info)

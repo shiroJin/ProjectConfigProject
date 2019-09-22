@@ -11,6 +11,7 @@ code = json["code"]
 target_name = json["targetName"]
 project_path = json["projectPath"]
 
+puts 'ruby run'
 if command == "new"
   puts '[Script] create new target'
   puts json
@@ -18,11 +19,14 @@ if command == "new"
 
 elsif command == "edit"
   puts '[Script] edit existed target'
-  XcodeProject.new_target(project_path, code, target_name, json)
+  XcodeProject.edit_target(project_path, code, target_name, json)
+  
+elsif command == "info"
+  puts '[Script] get project info'
+  XcodeProject.fetch_target_info(project_path, code, target_name)
   
 else
   puts 'ruby run...'
-
 end
 
 exit 0

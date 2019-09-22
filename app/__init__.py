@@ -1,5 +1,4 @@
 import os
-
 from flask import Flask, Blueprint
 
 app = Flask(__name__, instance_relative_config = True)

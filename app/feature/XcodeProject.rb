@@ -8,11 +8,8 @@ require_relative './ImageAsset'
 module XcodeProject
   # return xcodeproj file name in directory
   def XcodeProject.find_xcodeproj(dir)
-    Dir.foreach(dir) { |p|
-      if p.index('.xcodeproj')
-        return p
-      end
-    }
+    file_name = Dir.entries(dir).find { |entry| entry.index('xcodeproj') }
+    return File.join(dir, file_name)
   end
 
   # insert "target xxx do\n end" into podfile
@@ -90,12 +87,12 @@ module XcodeProject
       src.files.each do |file|
         # 过滤私有文件
         if file.file_ref.hierarchy_path.index("/Butler/ButlerForRemain")
-          puts 'ignore ' + file.display_name
+          puts '-------- ignore ' + file.display_name
           next
         end
         if dest.instance_of? Xcodeproj::Project::Object::PBXFrameworksBuildPhase
           if file.display_name.index('libPods-CommonPods')
-            puts 'ignore ' + file.display_name
+            puts '------- ignore ' + file.display_name
             next
           end
         end
@@ -219,7 +216,7 @@ module XcodeProject
     unless File.exist?(header_file_path)
       raise "#{header_file_path} not exist"
     end
-    header_file = ButlerHeaderFile.parse_headerfile(header_file_path)
+    header_file = ButlerHeaderFile.load(header_file_path)
     ButlerHeaderFile.keys.map { |key|
       if configuration[key]
         header_file[key] = configuration[key]
@@ -243,6 +240,34 @@ module XcodeProject
     end
 
     puts 'edit project complete'
+  end
+
+  def XcodeProject.fetch_target_info(proj_path, code, target_name)
+    info = Hash.new
+
+    proj = Xcodeproj::Project.open(find_xcodeproj(proj_path))
+    target = proj.targets.find { |target| target.display_name == target_name }
+    build_settings = target.build_settings('Distribution')
+    
+    plist_path = build_settings["INFOPLIST_FILE"].gsub('$(SRCROOT)', proj_path)
+    info_plist = Plist.parse_xml(plist_path)
+    puts plist_path
+    fields =['CFBundleDisplayName', 'CFBundleShortVersionString', 'CFBundleVersion']
+    fields.each do |field|
+      info[field] = info_plist[field]
+    end
+
+    private_group = File.join(proj_path, 'Butler', "ButlerFor#{code.capitalize}")
+    header_file_name = Dir.entries(private_group).find { |e| e.index(".h") }
+    header_file_path = File.join(private_group, header_file_name)
+    headerfile = ButlerHeaderFile.load(header_file_path)
+    ButlerHeaderFile.keys.each do |field|
+      info[field] = headerfile[field]
+    end
+
+    File.open('./appInfo.json', 'w') { |f|
+      f.syswrite(info.to_json)
+    }
   end
 
 end

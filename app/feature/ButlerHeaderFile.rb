@@ -26,7 +26,7 @@ module ButlerHeaderFile
   end
 
   # parse header file
-  def ButlerHeaderFile.parse_headerfile(file_path)
+  def ButlerHeaderFile.load(file_path)
     hash = Hash.new
     unless File.readable?(file_path)
       return hash
