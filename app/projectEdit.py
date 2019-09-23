@@ -65,18 +65,47 @@ def editApp(appInfo):
   return os.system(cmd)
 
 def fetchAppInfo(platform, code):
-  # repo = git.Repo.init(path=utils.projectPath(platform))
-  # repo.remote.pull()
-  # # 分支处理
-  # branch = None
-  # for head in repo.branches:
-  #   if head.find("proj-%s-snap" % appInfo["code"].lower()) != -1:
-  #     branch = head
-  #     break
-  # if repo.head != branch:
-  #   branch.checkout()
+  if code == "remain":
+    code = "mhsh"
+  repo = git.Repo.init(path=utils.projectPath(platform))
+  repo.remote().pull()
+  # 分支处理
+  local_ref = None
+  for ref in repo.branches:
+    if ref.name.find(code) != -1:
+      local_ref = ref
+      break
+  if local_ref:
+    local_ref.checkout()
+  else:
+    remote_ref = None
+    for ref in repo.remote().refs:
+      if ref.name.find(code) != -1:
+        remote_ref = ref
+        break
+    repo.git().checkout(remote_ref, b=remote_ref.remote_head)
   
-  cmd = "ruby %s/feature/projectRun.rb info info.json" % current_app.root_path
+  info = {}
+  if code == 'yz':
+    code = "town"
+  elif code == 'mhsh':
+    code = "remain"
+  info["code"] = code
+  info["projectPath"] = utils.projectPath(platform)
+  info["targetName"] = "ButlerFor%s" % code.capitalize()
+  with open('app/temporary/info.json', 'w') as fp:
+    json.dump(info, fp)
+
+  cmd = "ruby %s/feature/projectRun.rb info app/temporary/info.json" % current_app.root_path
   if os.system(cmd) == 0:
     with open('appInfo.json', 'r') as fp:
       return json.load(fp)
+
+def fetchProjectInfo(platform):
+  repo = git.Repo.init(path=utils.projectPath(platform))
+  repo.remote().pull()
+  result = []
+  for branch in repo.remote().refs:
+    if branch.name.find('proj-') != -1:
+      result.append(branch.name)
+  return result

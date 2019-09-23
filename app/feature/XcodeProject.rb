@@ -265,6 +265,19 @@ module XcodeProject
       info[field] = headerfile[field]
     end
 
+    assets_info = Hash.new
+    xcassets = File.join(private_group, Dir.entries(private_group).find { |e| e.index("xcassets") })
+    Dir.entries(xcassets).each do |entry|
+      filename = entry.split('.').first
+      extname = entry.split('.').last
+      absolute_path = File.join(xcassets, entry)
+      if ['appiconset', 'launchimage', 'imageset'].include? extname
+        path = File.join(absolute_path, Dir.entries(absolute_path).find { |f| f.index('png') })
+        assets_info[filename] = path
+      end
+    end
+    info['images'] = assets_info
+
     File.open('./appInfo.json', 'w') { |f|
       f.syswrite(info.to_json)
     }

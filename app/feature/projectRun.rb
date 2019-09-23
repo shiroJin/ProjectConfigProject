@@ -26,7 +26,7 @@ elsif command == "info"
   XcodeProject.fetch_target_info(project_path, code, target_name)
   
 else
-  puts 'ruby run...'
+  puts 'ruby run nothing'
 end
 
 exit 0
