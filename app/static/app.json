@@ -1,0 +1,15 @@
+[
+  {
+    "code" : "mhsh",
+    "targetName" : "ButlerForRemain",
+    "branchName" : "proj-mhsh-snapshot"
+  }, {
+    "code" : "yz",
+    "targetName" : "ButlerForTown",
+    "branchName" : "proj-yz-snapshot"
+  }, {
+    "code" : "zhwg",
+    "targetName" : "ButlerForZhwg",
+    "branchName" : "proj-zhwg-snapshot"
+  }
+]

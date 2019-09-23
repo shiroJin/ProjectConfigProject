@@ -11,7 +11,6 @@ def upload():
   images = request.files.getlist('image')
   for image in images:
     filename = secure_filename(image.filename)
-    print(filename)
     if not utils.allowed_file(filename):
       return make_response('图片格式错误', 502)
   

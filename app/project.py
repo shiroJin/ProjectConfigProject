@@ -1,6 +1,6 @@
 from flask import request, url_for, render_template, make_response,\
    Blueprint, current_app
-from . import projectEdit, utils
+from . import project_editor, utils
 import json
 import os
 import shutil
@@ -12,7 +12,7 @@ def updateConfig(platform):
   if platform == 'butler':
     data = request.get_json()
     data["projectPath"] = utils.projectPath(platform)
-    projectEdit.createNewApp(data)
+    project_editor.edit_app(data)
     return make_response('success', 200)
   else:
     return make_response('feature unavailable')
@@ -23,7 +23,7 @@ def newApplication(platform):
     data = request.get_json()
     data['projectPath'] = projectPath(platform)
     data = utils.redirectRemotePath(data)
-    projectEdit.createNewApp(data)
+    project_editor.create_new_app(data)
     return make_response('success', 200)
   else:
     return make_response('feature unavailable')
@@ -35,7 +35,9 @@ def index():
 @bp.route('/appInfo/<platform>', methods=['GET'])
 def appInfo(platform):
   company_code = request.args.get('companyCode')
-  info = projectEdit.fetchAppInfo(platform, company_code)
+  target_name = request.args.get('targetName')
+  branch_name = request.args.get('branchName')
+  info = project_editor.fetch_app_info(platform, branch_name, target_name, code)
 
   images = info['images']
   result = {}
@@ -50,5 +52,6 @@ def appInfo(platform):
 
 @bp.route('/projectInfo/<platform>', methods=['GET'])
 def projectInfo(platform):
-  project_list = projectEdit.fetchProjectInfo(platform)
-  return render_template('project-info.html', branches=project_list)
+  file_path = os.path.join(current_app.root_path, 'static/app.json')
+  with open(file_path) as fp:
+    return {"data" : json.load(fp)}
