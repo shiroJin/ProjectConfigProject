@@ -1,15 +1,30 @@
 [
   {
+    "displayName" : "一米智服",
     "code" : "mhsh",
     "targetName" : "ButlerForRemain",
-    "branchName" : "proj-mhsh-snapshot"
-  }, {
+    "branchName" : "proj-mhsh-snapshot",
+    "privateGroup" : "ButlerForRemain"
+  },
+  {
+    "displayName" : "园区管理",
     "code" : "yz",
     "targetName" : "ButlerForTown",
-    "branchName" : "proj-yz-snapshot"
-  }, {
+    "branchName" : "proj-yz-snapshot",
+    "privateGroup" : "ButlerForTown"
+  },
+  {
+    "displayName" : "小镇管理",
     "code" : "zhwg",
     "targetName" : "ButlerForZhwg",
-    "branchName" : "proj-zhwg-snapshot"
+    "branchName" : "proj-zhwg-snapshot",
+    "privateGroup" : "ButlerForZhwg"
+  },
+  {
+    "displayName" : "慧管理",
+    "code" : "ss",
+    "targetName" : "Butler",
+    "branchName" : "proj-xyjnh-snapshot",
+    "privateGroup" : "Butler"
   }
 ]

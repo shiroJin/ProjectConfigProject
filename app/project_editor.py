@@ -28,12 +28,13 @@ def edit_app(appInfo):
   cmd = 'ruby feature/projectRun.rb edit ./update.json'
   return os.system(cmd)
 
-def fetch_app_info(platform, branch_name, target_name, code):
+def fetch_app_info(platform, branch_name, target_name, private_group):
   repo = git.Repo.init(path=utils.projectPath(platform))
   repo.remote().pull()
   git_helper.checkout_branch(repo, branch_name)
   
-  info["code"] = code
+  info = {}
+  info["privateGroup"] = private_group
   info["projectPath"] = utils.projectPath(platform)
   info["targetName"] = target_name
   with open('app/temporary/info.json', 'w') as fp:

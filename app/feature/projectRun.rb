@@ -10,6 +10,7 @@ json = JSON.parse(file)
 code = json["code"]
 target_name = json["targetName"]
 project_path = json["projectPath"]
+private_group = json["privateGroup"]
 
 puts 'ruby run'
 if command == "new"
@@ -23,7 +24,7 @@ elsif command == "edit"
   
 elsif command == "info"
   puts '[Script] get project info'
-  XcodeProject.fetch_target_info(project_path, code, target_name)
+  XcodeProject.fetch_target_info(project_path, private_group, target_name)
   
 else
   puts 'ruby run nothing'

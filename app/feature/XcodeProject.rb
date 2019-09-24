@@ -242,7 +242,7 @@ module XcodeProject
     puts 'edit project complete'
   end
 
-  def XcodeProject.fetch_target_info(proj_path, code, target_name)
+  def XcodeProject.fetch_target_info(proj_path, private_group_name, target_name)
     info = Hash.new
 
     proj = Xcodeproj::Project.open(find_xcodeproj(proj_path))
@@ -257,7 +257,7 @@ module XcodeProject
       info[field] = info_plist[field]
     end
 
-    private_group = File.join(proj_path, 'Butler', "ButlerFor#{code.capitalize}")
+    private_group = File.join(proj_path, 'Butler', private_group_name)
     header_file_name = Dir.entries(private_group).find { |e| e.index(".h") }
     header_file_path = File.join(private_group, header_file_name)
     headerfile = ButlerHeaderFile.load(header_file_path)

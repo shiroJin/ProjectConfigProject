@@ -34,10 +34,10 @@ def index():
 
 @bp.route('/appInfo/<platform>', methods=['GET'])
 def appInfo(platform):
-  company_code = request.args.get('companyCode')
   target_name = request.args.get('targetName')
   branch_name = request.args.get('branchName')
-  info = project_editor.fetch_app_info(platform, branch_name, target_name, code)
+  private_group = request.args.get('privateGroup')
+  info = project_editor.fetch_app_info(platform, branch_name, target_name, private_group)
 
   images = info['images']
   result = {}
@@ -47,11 +47,10 @@ def appInfo(platform):
     shutil.copyfile(path, dest)
     result[name] = os.path.join('http://localhost:5000/image', dest_name)
   info['images'] = result
-
-  return render_template("app-info.html", appInfo=info)
+  return info
 
 @bp.route('/projectInfo/<platform>', methods=['GET'])
 def projectInfo(platform):
   file_path = os.path.join(current_app.root_path, 'static/app.json')
   with open(file_path) as fp:
-    return {"data" : json.load(fp)}
+    return { "data" : json.load(fp) }
