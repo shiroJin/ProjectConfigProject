@@ -1,7 +1,9 @@
 require 'image_size'
 require 'fileutils'
+require 'json'
 
 $SRCROOT = File.expand_path('..', __FILE__)
+EMPTY_CONTENT_HASH = Hash["info" => Hash["version" => 1, "author" => "xcode"]]
 
 module ImageAsset
   def ImageAsset.new_icon(icons, dest_dir)
@@ -41,7 +43,7 @@ module ImageAsset
     }
   end
 
-  def ImageAsset.new_launch(image_paths, dest_dir)
+  def ImageAsset.new_launch(launchs, dest_dir)
     launch_assets_path = "#{dest_dir}/LaunchImage.launchimage"
 
     if File.exist?(launch_assets_path)
@@ -81,12 +83,51 @@ module ImageAsset
     end
     contents_path = File.join(path, "Contents.json")
     File.open(contents_path, "w") { |f|
-      f.syswrite(%Q{{\n  "info" : {\n    "version" : 1,\n    "author" : "xcode"\n  }\n}})
+      f.syswrite(EMPTY_CONTENT_HASH.to_json)
     }
   end
 
-  def ImageAsset.new_image_assets(name, file_paths)
-    puts $SRCROOT
+  def ImageAsset.add_imageset(name, image_paths, dest_dir)
+    imageset_name = "#{name}.imageset"
+    imageset_path = File.join(dest_dir, imageset_name)
+    unless File.exist?(imageset_path)
+      Dir.mkdir(imageset_path)
+    end
+    Dir.foreach(imageset_path) { |f|
+      if ['.', '..'].include?(f)
+        next
+      end
+      path = File.join(imageset_path, f)
+      File.delete(path)
+    }
+    
+    filenames = []
+    guard = 0
+    image_paths.each { |path|
+      filename = path.split(pattern='/').last
+      FileUtils.copy(path, File.join(imageset_path, filename))
+      size = ImageSize.path(path)
+      if size.width > guard
+        filenames << filename
+      else
+        filenames.insert(0, filename)
+      end
+      guard = size.width
+    }
+
+    content_hash = EMPTY_CONTENT_HASH.clone
+    image_list = Array.new
+    image_list << Hash["idiom" => "universal", "scale" => "1x"]
+    image_list << Hash["idiom" => "universal", "scale" => "2x", "filename" => filenames[0]]
+    image_list << Hash["idiom" => "universal", "scale" => "3x", "filename" => filenames[1]]
+    content_hash["images"] = image_list
+
+    puts content_hash
+
+    content_json_path = File.join(imageset_path, 'Contents.json')
+    File.open(content_json_path, 'w') { |f|
+      f.syswrite(content_hash.to_json)
+    }
   end
 
 end
