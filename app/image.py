@@ -17,7 +17,7 @@ def upload():
   result = []
   for image in images:
     filename = secure_filename(image.filename)
-    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+    image.save(os.path.join(current_app.config['UPLOAD_FOLDER'], filename))
     url = os.path.join('http://localhost:5000/image', filename)
     result.append(url)
 

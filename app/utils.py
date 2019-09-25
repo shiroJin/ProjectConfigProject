@@ -21,13 +21,13 @@ ALLOW_EXTENSIONS = set(['png', 'jpg'])
 def allowed_file(filename):
   return '.' in filename and filename.rsplit('.', 1)[1] in ALLOW_EXTENSIONS
 
-def projectPath(platform):
+def project_path(platform):
   if platform == 'butler':
     return '/Users/remain/Desktop/script-work/ButlerForFusion'
   else:
     return ''
 
-def redirectRemotePath(obj):
+def redirect_remote_path(obj):
   if isinstance(obj, (list)):
     result = []
     for value in obj:

@@ -29,13 +29,13 @@ def edit_app(appInfo):
   return os.system(cmd)
 
 def fetch_app_info(platform, branch_name, target_name, private_group):
-  repo = git.Repo.init(path=utils.projectPath(platform))
-  repo.remote().pull()
-  git_helper.checkout_branch(repo, branch_name)
+  repo = git.Repo.init(path=utils.project_path(platform))
+  # repo.remote().pull()
+  # git_helper.checkout_branch(repo, branch_name)
   
   info = {}
   info["privateGroup"] = private_group
-  info["projectPath"] = utils.projectPath(platform)
+  info["projectPath"] = utils.project_path(platform)
   info["targetName"] = target_name
   with open('app/temporary/info.json', 'w') as fp:
     json.dump(info, fp)
@@ -47,12 +47,4 @@ def fetch_app_info(platform, branch_name, target_name, private_group):
       return json.load(fp)
   else:
     raise("read failure")
-
-def fetch_project_info(platform):
-  repo = git.Repo.init(path=utils.projectPath(platform))
-  repo.remote().pull()
-  result = []
-  for branch in repo.remote().refs:
-    if branch.name.find('proj-') != -1:
-      result.append(branch.name)
-  return result
+    

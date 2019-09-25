@@ -1,0 +1,17 @@
+{
+  "butler" : [
+    "kDistributioneBaseCommonUrl",
+    "kJPushAppKeyString",
+    "kUMengAppKeyString",
+    "kWechatAppId",
+    "kWechatAppKey",
+    "kTencentQQAppId",
+    "kTencentQQAppKey",
+    "kAPISalt",
+    "kMobiletype",
+    "kCompanyCode",
+    "kVersionCheckType",
+    "kIDCardScanDevcode",
+    "kPlateNumberScanDevcode"
+  ]
+}

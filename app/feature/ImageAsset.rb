@@ -90,16 +90,10 @@ module ImageAsset
   def ImageAsset.add_imageset(name, image_paths, dest_dir)
     imageset_name = "#{name}.imageset"
     imageset_path = File.join(dest_dir, imageset_name)
-    unless File.exist?(imageset_path)
-      Dir.mkdir(imageset_path)
+    if File.exist?(imageset_path)
+      FileUtils.remove_dir(imageset_path)      
     end
-    Dir.foreach(imageset_path) { |f|
-      if ['.', '..'].include?(f)
-        next
-      end
-      path = File.join(imageset_path, f)
-      File.delete(path)
-    }
+    FileUtils.mkdir_p(imageset_path)
     
     filenames = []
     guard = 0
@@ -121,9 +115,7 @@ module ImageAsset
     image_list << Hash["idiom" => "universal", "scale" => "2x", "filename" => filenames[0]]
     image_list << Hash["idiom" => "universal", "scale" => "3x", "filename" => filenames[1]]
     content_hash["images"] = image_list
-
-    puts content_hash
-
+    
     content_json_path = File.join(imageset_path, 'Contents.json')
     File.open(content_json_path, 'w') { |f|
       f.syswrite(content_hash.to_json)

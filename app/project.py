@@ -21,8 +21,10 @@ def updateConfig(platform):
 def newApplication(platform):
   if platform == 'butler':
     data = request.get_json()
-    data['projectPath'] = projectPath(platform)
-    data = utils.redirectRemotePath(data)
+    print(data)
+    return
+    data['projectPath'] = utils.project_path(platform)
+    data = utils.redirect_remote_path(data)
     project_editor.create_new_app(data)
     return make_response('success', 200)
   else:
@@ -42,7 +44,8 @@ def appInfo(platform):
   images = info['images']
   result = {}
   for (name, path) in images.items():
-    dest_name = "%s-%s.png" % (name, utils.short_uuid())
+    # dest_name = "%s-%s.png" % (name, utils.short_uuid())
+    dest_name = name
     dest = os.path.join(current_app.config['UPLOAD_FOLDER'], dest_name)
     shutil.copyfile(path, dest)
     result[name] = os.path.join('http://localhost:5000/image', dest_name)
