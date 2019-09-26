@@ -2,7 +2,7 @@ require 'xcodeproj'
 require 'json'
 require 'plist'
 require 'fileutils'
-require_relative './ButlerHeaderFile'
+require_relative './HeaderFile'
 require_relative './ImageAsset'
 
 module XcodeProject
@@ -137,11 +137,11 @@ module XcodeProject
 
     # header file
     header_file_hash = Hash.new
-    ButlerHeaderFile.keys.each do |key|
+    HeaderFile.keys.each do |key|
       header_file_hash[key] = configuration[key]
     end
     header_file_path = "#{target_group_path}/SCAppConfigFor#{code.capitalize}Butler.h"
-    ButlerHeaderFile.write_to_file(header_file_hash, header_file_path)
+    HeaderFile.write_to_file(header_file_hash, header_file_path)
 
     # new ref and build file in pbxproj
     group.new_reference("SCAppConfigFor#{code.capitalize}Butler.h")
@@ -216,13 +216,13 @@ module XcodeProject
     unless File.exist?(header_file_path)
       raise "#{header_file_path} not exist"
     end
-    header_file = ButlerHeaderFile.load(header_file_path)
-    ButlerHeaderFile.keys.map { |key|
+    header_file = HeaderFile.load(header_file_path)
+    HeaderFile.keys.map { |key|
       if configuration[key]
         header_file[key] = configuration[key]
       end
     }
-    ButlerHeaderFile.write_to_file(header_file, header_file_path)
+    HeaderFile.write_to_file(header_file, header_file_path)
 
     # image
     puts 'begin handle image files'
@@ -260,10 +260,8 @@ module XcodeProject
     private_group = File.join(proj_path, 'Butler', private_group_name)
     header_file_name = Dir.entries(private_group).find { |e| e.index(".h") }
     header_file_path = File.join(private_group, header_file_name)
-    headerfile = ButlerHeaderFile.load(header_file_path)
-    ButlerHeaderFile.keys.each do |field|
-      info[field] = headerfile[field]
-    end
+    headerfile = HeaderFile.load(header_file_path)
+    info = info.merge(headerfile["DISTRIBUTION"])
 
     assets_info = Hash.new
     xcassets = File.join(private_group, Dir.entries(private_group).find { |e| e.index("xcassets") })
@@ -277,7 +275,7 @@ module XcodeProject
       end
     end
     info['images'] = assets_info
-
+    
     File.open('./appInfo.json', 'w') { |f|
       f.syswrite(info.to_json)
     }

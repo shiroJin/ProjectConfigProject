@@ -33,10 +33,11 @@ def fetch_app_info(platform, branch_name, target_name, private_group):
   # repo.remote().pull()
   # git_helper.checkout_branch(repo, branch_name)
   
-  info = {}
-  info["privateGroup"] = private_group
-  info["projectPath"] = utils.project_path(platform)
-  info["targetName"] = target_name
+  info = {
+    "privateGroup" : private_group,
+    "projectPath" : utils.project_path(platform),
+    "targetName" : target_name
+  }
   with open('app/temporary/info.json', 'w') as fp:
     json.dump(info, fp)
 
