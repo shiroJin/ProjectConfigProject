@@ -1,7 +1,7 @@
 require 'Liquid'
 
-module HeaderFile
-  def HeaderFile.load(file_path)
+module HeadFile
+  def HeadFile.load(file_path)
     return Hash.new unless File.readable?(file_path)
 
     hash = Hash.new
@@ -25,7 +25,7 @@ module HeaderFile
     return dict
   end
 
-  def HeaderFile.dump(info, dest)
+  def HeadFile.dump(dest, info)
     template_path = File.join(File.expand_path('..', __FILE__), 'Sources/template.h')
     template_content = IO.read(template_path)
     template = Liquid::Template.parse(template_content)
