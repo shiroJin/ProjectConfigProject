@@ -1,0 +1,28 @@
+#ifndef SCAppConfigForRemainButler_h
+#define SCAppConfigForRemainButler_h
+
+{% if app.DEBUG %}
+#ifdef DEBUG
+{% for item in app.DEBUG %}
+static NSString * const {{ item[0] }}             = @"{{ item[1] }}";
+{% endfor %}
+#endif
+{% endif %}
+
+{% if app.RELEASE %}
+#ifdef RELEASE
+{% for item in app.RELEASE %}
+static NSString * const {{ item[0] }}             = @"{{ item[1] }}";
+{% endfor %}
+#endif
+{% endif %}
+
+{% if app.DISTRIBUTION %}
+#ifdef DISTRIBUTION
+{% for item in app.DISTRIBUTION %}
+static NSString * const {{ item[0] }}             = @"{{ item[1] }}";
+{% endfor %}
+#endif
+{% endif %}
+
+#endif /* SCAppConfigForRemainButler_h */
