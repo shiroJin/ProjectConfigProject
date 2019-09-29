@@ -48,7 +48,7 @@ def appInfo(platform):
     dest_name = name
     dest = os.path.join(current_app.config['UPLOAD_FOLDER'], dest_name)
     shutil.copyfile(path, dest)
-    result[name] = os.path.join('http://localhost:5000/image', dest_name)
+    result[name] = os.path.join(utils.image_host, dest_name)
   info['images'] = result
   return info
 

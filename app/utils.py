@@ -1,4 +1,7 @@
 from uuid import uuid4
+from flask import current_app
+
+image_host = "http://localhost:5000/image"
 
 uuidChars = ("a", "b", "c", "d", "e", "f",
        "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s",
@@ -39,7 +42,6 @@ def redirect_remote_path(obj):
       result[key] = redirectRemotePath(obj[key])
     return result
   elif isinstance(obj, (str)):
-    return obj.replace('http://localhost:5000', '/Users/remain/Desktop/flaskService')
+    return obj.replace(image_host, current_app.config["UPLOAD_FOLDER"])
   else:
     return obj
-      

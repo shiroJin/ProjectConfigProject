@@ -117,9 +117,7 @@ module ImageAsset
     content_hash["images"] = image_list
     
     content_json_path = File.join(imageset_path, 'Contents.json')
-    File.open(content_json_path, 'w') { |f|
-      f.syswrite(content_hash.to_json)
-    }
+    IO.write(content_json_path, JSON.pretty_generate(content_hash))
   end
 
 end

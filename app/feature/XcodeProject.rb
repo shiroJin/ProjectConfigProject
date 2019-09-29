@@ -2,7 +2,7 @@ require 'xcodeproj'
 require 'json'
 require 'plist'
 require 'fileutils'
-require_relative './HeaderFile'
+require_relative './HeadFile'
 require_relative './ImageAsset'
 
 module XcodeProject
@@ -14,51 +14,36 @@ module XcodeProject
 
   # insert "target xxx do\n end" into podfile
   def XcodeProject.podfile_add_target(project_path, target_name)
-    lines = []
-    File.open("#{project_path}/Podfile", "r") { |podfile|
-      lines =  IO.readlines(podfile)
-    }
+    podfile_path = File.join(project_path, 'Podfile')
     content = ""
-    lines.each do |line|
+    IO.foreach(podfile_path) do |line|
       content += line
       if line.index("abstract_target")
         content += "target '#{target_name}' do\nend\n"
       end
     end
-    File.open("#{project_path}/Podfile", "w") { |podfile|
-      podfile.syswrite(content)
-    }
+    IO.write(podfile_path, content)
   end
 
   # import header file in pch
-  def XcodeProject.pch_add_header_file(pch_file_path, pre_process_macro, header_file_name)
-    lines = []
-    File.open(pch_file_path, "r") { |f|
-      lines = IO.readlines(f)
-    }
+  def XcodeProject.pch_add_headfile(pch_file_path, pre_process_macro, headfile_name)
     content = ""
-    lines.each { |line|
+    IO.foreach(pch_file_path) do |line|
       if line.index("#elif REMAIN")
-        content += %Q{#elif #{pre_process_macro}\n#import "#{header_file_name}.h"\n}
+        content += %Q{#elif #{pre_process_macro}\n#import "#{headfile_name}.h"\n}
       end
-      content += line
-    }
-    File.open(pch_file_path, "w") { |f|
-      f.syswrite(content)
-    }
+      content += line      
+    end
+    IO.write(pch_file_path, content)
   end
 
   # create_target method do follow things for you
   # 1. create target from template
   # 2. copy build phase and build setttins from template, igonre template's private build files, 
   #    in addition, method will add a target's pre-preocess macro 
-  # 3. make directory for new target
-  # 4. copy plist from template, modify target private items
-  # 5. make project config header file which contains project's configs, such as http address,
-  #    jpush key, umeng key and etc.
-  # 6. make private image assets for target, and make icon asset and launch asset.
-  # 7. add target into Podfile
-  # 8. put target's private header file into project's pch file
+  # 3. make directory for new target, create plist file and headerfile which contains project's 
+  #    configs, such as http address, jpush key, umeng key and etc. In addition, create imagset.
+  # 4. edit Podfile file
   def XcodeProject.new_target(project_path, code, target_name, configuration, template_name="ButlerForRemain")
     xcodeproj_path = File.join(project_path, find_xcodeproj(project_path))
     project = Xcodeproj::Project.open(xcodeproj_path)
@@ -136,12 +121,12 @@ module XcodeProject
     }
 
     # header file
-    header_file_hash = Hash.new
-    HeaderFile.keys.each do |key|
-      header_file_hash[key] = configuration[key]
+    headfile_hash = Hash.new
+    HeadFile.keys.each do |key|
+      headfile_hash[key] = configuration[key]
     end
-    header_file_path = "#{target_group_path}/SCAppConfigFor#{code.capitalize}Butler.h"
-    HeaderFile.write_to_file(header_file_hash, header_file_path)
+    headfile_path = "#{target_group_path}/SCAppConfigFor#{code.capitalize}Butler.h"
+    HeadFile.write_to_file(headfile_hash, headfile_path)
 
     # new ref and build file in pbxproj
     group.new_reference("SCAppConfigFor#{code.capitalize}Butler.h")
@@ -169,7 +154,7 @@ module XcodeProject
 
     puts '[Scirpt] Edit pch'
     pch_path = target.build_settings('Distribution')["GCC_PREFIX_HEADER"]
-    pch_add_header_file("#{project_path}/#{pch_path}", code.upcase, "SCAppConfigFor#{code.capitalize}Butler")
+    pch_add_headfile("#{project_path}/#{pch_path}", code.upcase, "SCAppConfigFor#{code.capitalize}Butler")
 
     project.save
 
@@ -195,42 +180,40 @@ module XcodeProject
     build_settings = target.build_settings("Distribution")
     plist_path = build_settings["INFOPLIST_FILE"].gsub('$(SRCROOT)', project_path)
     plist = Plist.parse_xml(plist_path)
-    if configuration["displayName"]
-      plist["CFBundleDisplayName"] = configuration["displayName"]
+    if configuration["CFBundleDisplayName"]
+      plist["CFBundleDisplayName"] = configuration["CFBundleDisplayName"]
     end
-    if configuration["version"]
-      plist["CFBundleShortVersionString"] = configuration["version"]
+    if configuration["CFBundleShortVersionString"]
+      plist["CFBundleShortVersionString"] = configuration["CFBundleShortVersionString"]
     end
-    if configuration["build"]
-      plist["CFBundleVersion"] = configuration["build"]
+    if configuration["CFBundleVersion"]
+      plist["CFBundleVersion"] = configuration["CFBundleVersion"]
     end
-    File.open(plist_path, "w") { |f|
-      f.syswrite(plist.to_plist)
-    }
+    IO.write(plist_path, plist.to_plist)
 
-    target_private_group = "#{project_path}/Butler/ButlerFor#{code.capitalize}"
+    private_group = "#{project_path}/Butler/ButlerFor#{code.capitalize}"
     
     # header file
     puts 'begin edit header file'
-    header_file_path = "#{target_private_group}/SCAppConfigFor#{code.capitalize}Butler.h"
-    unless File.exist?(header_file_path)
-      raise "#{header_file_path} not exist"
+    headfile_path = "#{private_group}/SCAppConfigFor#{code.capitalize}Butler.h"
+    unless File.exist?(headfile_path)
+      raise "#{headfile_path} not exist"
+      exit 1
     end
-    header_file = HeaderFile.load(header_file_path)
-    HeaderFile.keys.map { |key|
+    headfile = HeadFile.load(headfile_path)
+    HeadFile.keys.map { |key|
       if configuration[key]
-        header_file[key] = configuration[key]
-      end
+        headfile[key] = configuration[key]
+      ends
     }
-    HeaderFile.write_to_file(header_file, header_file_path)
+    HeadFile.dump(headfile_path, headfile)
 
     # image
     puts 'begin handle image files'
     images = configuration["images"]
     if images
-      assets_name = Dir.entries(target_private_group).find { |f| f.index('.xcassets') }
-      assets_path = File.join(target_private_group, assets_name)
-      puts assets_path
+      assets_name = Dir.entries(private_group).find { |f| f.index('.xcassets') }
+      assets_path = File.join(private_group, assets_name)
       if images["icons"]
         ImageAsset.new_icon(images["icons"], assets_path)
       end
@@ -258,9 +241,9 @@ module XcodeProject
     end
 
     private_group = File.join(proj_path, 'Butler', private_group_name)
-    header_file_name = Dir.entries(private_group).find { |e| e.index(".h") }
-    header_file_path = File.join(private_group, header_file_name)
-    headerfile = HeaderFile.load(header_file_path)
+    headfile_name = Dir.entries(private_group).find { |e| e.index(".h") }
+    headfile_path = File.join(private_group, headfile_name)
+    headerfile = HeadFile.load(headfile_path)
     info = info.merge(headerfile["DISTRIBUTION"])
 
     assets_info = Hash.new
@@ -276,9 +259,7 @@ module XcodeProject
     end
     info['images'] = assets_info
     
-    File.open('./appInfo.json', 'w') { |f|
-      f.syswrite(info.to_json)
-    }
+    IO.write('./appInfo.json', info.to_json)
   end
 
 end
