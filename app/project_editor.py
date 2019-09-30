@@ -9,12 +9,12 @@ def create_new_app(appInfo):
   with open('./config.json', 'w') as fp:
     json.dump(appInfo, fp)
 
-  tagName = appInfo["tag"]
-  branchName = "proj-%s-snapshot" % appInfo["code"]
-  repo = git.Repo.init(path=appInfo["projectPath"])
-  git_helper.checkout_branch(repo, branchName, create=True, tag_name=tagName)
+  # tagName = appInfo["tag"]
+  # branchName = "proj-%s-snapshot" % appInfo["kCompanyCode"]
+  # repo = git.Repo.init(path=appInfo["projectPath"])
+  # git_helper.checkout_branch(repo, branchName, create=True, tag_name=tagName)
 
-  cmd = 'ruby feature/projectRun.rb new ./config.json'
+  cmd = 'ruby %s/feature/projectRun.rb new ./config.json' % current_app.root_path
   return os.system(cmd)
 
 def edit_app(appInfo):
@@ -24,7 +24,6 @@ def edit_app(appInfo):
   repo = git.Repo.init(path=utils.projectPath(platform))
   repo.remote.pull()
   git_helper.checkout_branch(repo, appInfo["branchName"])
-  
   cmd = 'ruby feature/projectRun.rb edit ./update.json'
   return os.system(cmd)
 

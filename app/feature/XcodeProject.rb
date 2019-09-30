@@ -26,13 +26,15 @@ module XcodeProject
   end
 
   # import header file in pch
-  def XcodeProject.pch_add_headfile(pch_file_path, pre_process_macro, headfile_name)
+  def XcodeProject.config_add_headfile(pch_file_path, pre_process_macro, headfile_name)
+    index = 0
     content = ""
     IO.foreach(pch_file_path) do |line|
-      if line.index("#elif REMAIN")
-        content += %Q{#elif #{pre_process_macro}\n#import "#{headfile_name}.h"\n}
+      content += line
+      if index == 1
+        content += %Q{#ifdef #{pre_process_macro}\n#import "#{headfile_name}.h"\n#endif\n}
       end
-      content += line      
+      index += 1   
     end
     IO.write(pch_file_path, content)
   end
@@ -45,7 +47,7 @@ module XcodeProject
   #    configs, such as http address, jpush key, umeng key and etc. In addition, create imagset.
   # 4. edit Podfile file
   def XcodeProject.new_target(project_path, code, target_name, configuration, template_name="ButlerForRemain")
-    xcodeproj_path = File.join(project_path, find_xcodeproj(project_path))
+    xcodeproj_path = find_xcodeproj(project_path)
     project = Xcodeproj::Project.open(xcodeproj_path)
     target = project.targets.find { |item| item.name == target_name }
     if target
@@ -77,7 +79,7 @@ module XcodeProject
         end
         if dest.instance_of? Xcodeproj::Project::Object::PBXFrameworksBuildPhase
           if file.display_name.index('libPods-CommonPods')
-            puts '------- ignore ' + file.display_name
+            puts '-------- ignore ' + file.display_name
             next
           end
         end
@@ -99,8 +101,8 @@ module XcodeProject
     group = project.main_group.find_subpath("Butler").new_group(nil, "ButlerFor#{code.capitalize}")
 
     # image resource
-    icon_paths = configuration["icons"]
-    launch_paths = configuration["launchs"]
+    icon_paths = configuration["images"]["AppIcon"]
+    launch_paths = configuration["images"]["LaunchImage"]
     top_assets_path = "#{target_group_path}/assetsFor#{code.capitalize}.xcassets"
     ImageAsset.new_assets_group(top_assets_path)
     ImageAsset.new_icon(icon_paths, top_assets_path)
@@ -112,21 +114,23 @@ module XcodeProject
     src_plist_path = src_build_settings["INFOPLIST_FILE"].gsub('$(SRCROOT)', project_path)
     plist_hash = Plist.parse_xml(src_plist_path)
 
-    plist_hash["CFBundleDisplayName"] = configuration["displayName"]
-    plist_hash["CFBundleShortVersionString"] = configuration["version"]
-    plist_hash["CFBundleVersion"] = configuration["build"]
-
-    File.open(dest_plist_path, "w") { |f|
-      f.syswrite(plist_hash.to_plist)
-    }
+    plist_hash["CFBundleDisplayName"] = configuration["CFBundleDisplayName"]
+    plist_hash["CFBundleShortVersionString"] = configuration["CFBundleShortVersionString"]
+    plist_hash["CFBundleVersion"] = configuration["CFBundleVersion"]
+    IO.write(dest_plist_path, plist_hash.to_plist)
 
     # header file
-    headfile_hash = Hash.new
-    HeadFile.keys.each do |key|
-      headfile_hash[key] = configuration[key]
+    distribution_hash = Hash.new
+    ignore_fields = HeadFile.project_fields()
+    configuration.each do |key, value|
+      puts key
+      unless ignore_fields.include? key
+        distribution_hash[key] = value
+      end
     end
+    headfile_hash = Hash["DISTRIBUTION" => distribution_hash]
     headfile_path = "#{target_group_path}/SCAppConfigFor#{code.capitalize}Butler.h"
-    HeadFile.write_to_file(headfile_hash, headfile_path)
+    HeadFile.dump(headfile_path, headfile_hash)
 
     # new ref and build file in pbxproj
     group.new_reference("SCAppConfigFor#{code.capitalize}Butler.h")
@@ -139,12 +143,12 @@ module XcodeProject
     target.build_configurations.each do |config|
       build_settings = config.build_settings
       build_settings["INFOPLIST_FILE"] = dest_plist_path.gsub(project_path, '$(SRCROOT)')
-      build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = configuration["bundleId"]
-      preprocess_defs = ["$(inherited)", "#{target_name.upcase}=1"]
+      build_settings["PRODUCT_BUNDLE_IDENTIFIER"] = configuration["PRODUCT_BUNDLE_IDENTIFIER"]
+      preprocess_defs = ["$(inherited)", "#{code.upcase}=1"]
       if config.name == 'Release'
-        preprocess_defs.push("Release=1")
+        preprocess_defs.push("RELEASE=1")
       elsif config.name == 'Distribution'
-        preprocess_defs.push("Distribution=1")
+        preprocess_defs.push("DISTRIBUTION=1")
       end
       build_settings["GCC_PREPROCESSOR_DEFINITIONS"] = preprocess_defs
     end
@@ -152,9 +156,9 @@ module XcodeProject
     puts '[Scirpt] Edit podfile'
     podfile_add_target(project_path, target_name)
 
-    puts '[Scirpt] Edit pch'
-    pch_path = target.build_settings('Distribution')["GCC_PREFIX_HEADER"]
-    pch_add_headfile("#{project_path}/#{pch_path}", code.upcase, "SCAppConfigFor#{code.capitalize}Butler")
+    puts '[Scirpt] Edit CommonConfig'
+    config_path = File.join(project_path, 'Butler', 'SCCommonConfig.h')
+    config_add_headfile(config_path, code.upcase, "SCAppConfigFor#{code.capitalize}Butler")
 
     project.save
 
@@ -201,10 +205,9 @@ module XcodeProject
       exit 1
     end
     headfile = HeadFile.load(headfile_path)
-    HeadFile.keys.map { |key|
-      if configuration[key]
-        headfile[key] = configuration[key]
-      ends
+    distribution_config = headerfile["DISTRIBUTION"]
+    configuration.map { |key, value|
+      distribution_config[key] = value
     }
     HeadFile.dump(headfile_path, headfile)
 

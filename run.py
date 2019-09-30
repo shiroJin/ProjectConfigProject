@@ -1,5 +1,6 @@
 import app
 from flask import Flask
 
-app = app.create_app()
-app.run(debug=True)
+if __name__ == "__main__":
+  app = app.create_app()
+  app.run(debug=True, host='0.0.0.0')

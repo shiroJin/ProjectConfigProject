@@ -17,12 +17,18 @@ def updateConfig(platform):
   else:
     return make_response('feature unavailable')
 
+@bp.route('/app-form/<platform>', methods=['GET'])
+def fetch_app_form(platform):
+  if platform == 'butler':
+    file_path = os.path.join(current_app.root_path, 'static/butler_form.json')
+    with open(file_path) as fp:
+      return json.load(fp)
+    return 'error'
+
 @bp.route('/newApp/<platform>', methods=['POST'])
 def newApplication(platform):
   if platform == 'butler':
     data = request.get_json()
-    print(data)
-    return
     data['projectPath'] = utils.project_path(platform)
     data = utils.redirect_remote_path(data)
     project_editor.create_new_app(data)

@@ -34,12 +34,12 @@ def redirect_remote_path(obj):
   if isinstance(obj, (list)):
     result = []
     for value in obj:
-      result.append(redirectRemotePath(value))
+      result.append(redirect_remote_path(value))
     return result
   elif isinstance(obj, (dict)):
     result = {}
     for key in obj:
-      result[key] = redirectRemotePath(obj[key])
+      result[key] = redirect_remote_path(obj[key])
     return result
   elif isinstance(obj, (str)):
     return obj.replace(image_host, current_app.config["UPLOAD_FOLDER"])

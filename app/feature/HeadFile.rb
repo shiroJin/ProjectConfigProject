@@ -1,6 +1,17 @@
 require 'Liquid'
 
 module HeadFile
+  def HeadFile.project_fields
+    return [
+      'CFBundleDisplayName',
+      'CFBundleShortVersionString',
+      'CFBundleVersion',
+      'PRODUCT_BUNDLE_IDENTIFIER',
+      'images',
+      'projectPath'
+    ]
+  end
+
   def HeadFile.load(file_path)
     return Hash.new unless File.readable?(file_path)
 
@@ -26,10 +37,10 @@ module HeadFile
   end
 
   def HeadFile.dump(dest, info)
-    template_path = File.join(File.expand_path('..', __FILE__), 'Sources/template.h')
+    template_path = File.join(File.expand_path('..', __FILE__), 'Sources/template')
     template_content = IO.read(template_path)
     template = Liquid::Template.parse(template_content)
-    result = template.render('info' => info)
+    result = template.render('app' => info)
     IO.write(dest, result)
   end
 end

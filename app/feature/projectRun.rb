@@ -7,7 +7,7 @@ json_path = ARGV[1]
 file = File.read(json_path)
 json = JSON.parse(file)
 
-code = json["code"]
+code = json["kCompanyCode"]
 target_name = json["targetName"]
 project_path = json["projectPath"]
 private_group = json["privateGroup"]
@@ -15,7 +15,7 @@ private_group = json["privateGroup"]
 puts 'ruby run'
 if command == "new"
   puts '[Script] create new target'
-  puts json
+  target_name = "ButlerFor#{code.capitalize}"
   XcodeProject.new_target(project_path, code, target_name, json)
 
 elsif command == "edit"

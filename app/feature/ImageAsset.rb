@@ -55,7 +55,7 @@ module ImageAsset
     FileUtils.cp("#{$SRCROOT}/Sources/LaunchImage_Contents.json", "#{launch_assets_path}/Contents.json")
 
     # contents.json中文件名称固定，需要根据尺寸重命名。
-    image_paths.each { |absolute_path|
+    launchs.each { |absolute_path|
       if File.file?(absolute_path)
         size = ImageSize.path(absolute_path)
         if size.width == 1242 and size.height == 2688
