@@ -1,7 +1,7 @@
 [
   {
     "displayName" : "一米智服",
-    "code" : "mhsh",
+    "code" : "mh",
     "targetName" : "ButlerForRemain",
     "branchName" : "script",
     "privateGroup" : "ButlerForRemain"
@@ -15,7 +15,7 @@
   },
   {
     "displayName" : "小镇管理",
-    "code" : "zhwg",
+    "code" : "wg",
     "targetName" : "ButlerForZhwg",
     "branchName" : "proj-zhwg-snapshot",
     "privateGroup" : "ButlerForZhwg"

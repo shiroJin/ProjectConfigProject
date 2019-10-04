@@ -7,15 +7,11 @@ import shutil
 
 bp = Blueprint('project', __name__, url_prefix='/project')
 
-@bp.route('/updateConfig/<platform>', methods=['GET', 'POST'])
+@bp.route('/updateApp/<platform>', methods=['GET', 'POST'])
 def updateConfig(platform):
-  if platform == 'butler':
-    data = request.get_json()
-    data["projectPath"] = utils.projectPath(platform)
-    project_editor.edit_app(data)
-    return make_response('success', 200)
-  else:
-    return make_response('feature unavailable')
+  update_info = request.get_json()
+  project_editor.edit_app(platform, update_info)
+  return make_response('success', 200)
 
 @bp.route('/app-form/<platform>', methods=['GET'])
 def fetch_app_form(platform):
@@ -42,13 +38,10 @@ def index():
 
 @bp.route('/appInfo/<platform>', methods=['GET'])
 def appInfo(platform):
-  target_name = request.args.get('targetName')
-  branch_name = request.args.get('branchName')
-  private_group = request.args.get('privateGroup')
-  info = project_editor.fetch_app_info(platform, branch_name, target_name, private_group)
+  company_code = request.args.get('companyCode')
+  info = project_editor.fetch_app_info(platform, company_code)
 
-  images = info['images']
-  result = {}
+  images, result = info['images'], {}
   for (name, path) in images.items():
     # dest_name = "%s-%s.png" % (name, utils.short_uuid())
     dest_name = name

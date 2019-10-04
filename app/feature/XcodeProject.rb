@@ -7,7 +7,7 @@ require_relative './ImageAsset'
 
 module XcodeProject
   # return xcodeproj file name in directory
-  def XcodeProject.find_xcodeproj(dir)
+  def XcodeProject.xcodeproj_file(dir)
     file_name = Dir.entries(dir).find { |entry| entry.index('xcodeproj') }
     return File.join(dir, file_name)
   end
@@ -47,7 +47,7 @@ module XcodeProject
   #    configs, such as http address, jpush key, umeng key and etc. In addition, create imagset.
   # 4. edit Podfile file
   def XcodeProject.new_target(project_path, code, target_name, configuration, template_name="ButlerForRemain")
-    xcodeproj_path = find_xcodeproj(project_path)
+    xcodeproj_path = xcodeproj_file(project_path)
     project = Xcodeproj::Project.open(xcodeproj_path)
     target = project.targets.find { |item| item.name == target_name }
     if target
@@ -171,12 +171,11 @@ module XcodeProject
 
   # allow you to edit project's config, such as http address, project version, build version, etc.
   def XcodeProject.edit_target(project_path, code, target_name, configuration)
-    xcodeproj_path = File.join(project_path, find_xcodeproj(project_path))
+    xcodeproj_path = xcodeproj_file(project_path)
     project = Xcodeproj::Project.open(xcodeproj_path)
     target = project.targets.find { |item| item.name == target_name }
     unless target
       raise "[Script] target #{target_name} not exist"
-      exit 1
     end
 
     # plist
@@ -195,19 +194,18 @@ module XcodeProject
     end
     IO.write(plist_path, plist.to_plist)
 
-    private_group = "#{project_path}/Butler/ButlerFor#{code.capitalize}"
-    
+    private_group = File.join(project_path, 'Butler', configuration["privateGroup"])
     # header file
     puts 'begin edit header file'
-    headfile_path = "#{private_group}/SCAppConfigFor#{code.capitalize}Butler.h"
-    unless File.exist?(headfile_path)
-      raise "#{headfile_path} not exist"
-      exit 1
-    end
+    headfile_name = Dir.entries(private_group).find { |f| f.index('.h') }
+    headfile_path = File.join(private_group, headfile_name)
+    raise "#{headfile_path} not exist" unless File.exist? headfile_path
     headfile = HeadFile.load(headfile_path)
-    distribution_config = headerfile["DISTRIBUTION"]
-    configuration.map { |key, value|
-      distribution_config[key] = value
+    distribution_config = headfile["DISTRIBUTION"]
+    distribution_config.map { |key,value|
+      if configuration[key]
+        distribution_config[key] = configuration[key]
+      end
     }
     HeadFile.dump(headfile_path, headfile)
 
@@ -217,21 +215,26 @@ module XcodeProject
     if images
       assets_name = Dir.entries(private_group).find { |f| f.index('.xcassets') }
       assets_path = File.join(private_group, assets_name)
-      if images["icons"]
-        ImageAsset.new_icon(images["icons"], assets_path)
-      end
-      if images["launchs"]
-        ImageAsset.new_icon(images["launchs"], assets_path)
-      end
+      images.map { |key, value|
+        puts key
+        if key == "AppIcon"
+          ImageAsset.new_icon(value, assets_path)
+        elsif key == "LaunchImage"
+          ImageAsset.new_icon(value, assets_path)
+        else
+          ImageAsset.add_imageset(key, value, assets_path)
+        end
+      }
     end
 
     puts 'edit project complete'
   end
 
+  # fetch target info from project
   def XcodeProject.fetch_target_info(proj_path, private_group_name, target_name)
     info = Hash.new
 
-    proj = Xcodeproj::Project.open(find_xcodeproj(proj_path))
+    proj = Xcodeproj::Project.open(xcodeproj_file(proj_path))
     target = proj.targets.find { |target| target.display_name == target_name }
     build_settings = target.build_settings('Distribution')
     
