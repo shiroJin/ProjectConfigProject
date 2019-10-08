@@ -26,8 +26,8 @@ def allowed_file(filename):
 
 def project_path(platform):
   if platform == 'butler':
-    # return '/Users/remain/Desktop/script-work/ButlerForFusion'
-    return '/Users/mashiro_jin/Desktop/LMWork/ButlerForFusion'
+    return '/Users/remain/Desktop/script-work/ButlerForFusion'
+    # return '/Users/mashiro_jin/Desktop/LMWork/ButlerForFusion'
   else:
     return ''
 
@@ -44,6 +44,22 @@ def redirect_remote_path(obj):
     return result
   elif isinstance(obj, (str)):
     return obj.replace(image_host, current_app.config["UPLOAD_FOLDER"])
+  else:
+    return obj
+
+def redirect_local_path(obj):
+  if isinstance(obj, (list)):
+    result = []
+    for value in obj:
+      result.append(redirect_remote_path(value))
+    return result
+  elif isinstance(obj, (dict)):
+    result = {}
+    for key in obj:
+      result[key] = redirect_remote_path(obj[key])
+    return result
+  elif isinstance(obj, (str)):
+    return obj.replace(current_app.config["UPLOAD_FOLDER"], image_host)
   else:
     return obj
 

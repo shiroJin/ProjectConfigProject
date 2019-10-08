@@ -218,9 +218,10 @@ module XcodeProject
       images.map { |key, value|
         puts key
         if key == "AppIcon"
+          puts value
           ImageAsset.new_icon(value, assets_path)
         elsif key == "LaunchImage"
-          ImageAsset.new_icon(value, assets_path)
+          ImageAsset.new_launch(value, assets_path)
         else
           ImageAsset.add_imageset(key, value, assets_path)
         end

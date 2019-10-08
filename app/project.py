@@ -7,9 +7,10 @@ import shutil
 
 bp = Blueprint('project', __name__, url_prefix='/project')
 
-@bp.route('/updateApp/<platform>', methods=['GET', 'POST'])
+@bp.route('/updateApp/<platform>', methods=['POST'])
 def updateConfig(platform):
   update_info = request.get_json()
+  update_info = utils.redirect_local_path(update_info)
   project_editor.edit_app(platform, update_info)
   return make_response('success', 200)
 
@@ -40,15 +41,6 @@ def index():
 def appInfo(platform):
   company_code = request.args.get('companyCode')
   info = project_editor.fetch_app_info(platform, company_code)
-
-  images, result = info['images'], {}
-  for (name, path) in images.items():
-    # dest_name = "%s-%s.png" % (name, utils.short_uuid())
-    dest_name = name
-    dest = os.path.join(current_app.config['UPLOAD_FOLDER'], dest_name)
-    shutil.copyfile(path, dest)
-    result[name] = os.path.join(utils.image_host, dest_name)
-  info['images'] = result
   return info
 
 @bp.route('/projectInfo/<platform>', methods=['GET'])

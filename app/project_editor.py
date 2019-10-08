@@ -1,13 +1,13 @@
 import git
 import os
 import json
+import shutil
 from . import utils
 from flask import current_app
 from . import git_helper
 
 def create_new_app(appInfo):
-  with open('./config.json', 'w') as fp:
-    json.dump(appInfo, fp)
+  utils.dump_json('./config.json', appInfo)
 
   # tagName = appInfo["tag"]
   # branchName = "proj-%s-snapshot" % appInfo["kCompanyCode"]
@@ -41,12 +41,22 @@ def fetch_app_info(platform, company_code):
     "projectPath" : utils.project_path(platform),
     "targetName" : app["targetName"]
   }
-  
-  utils.dump_json('app/temporary/info.json', info)
+  utils.dump_json('app/temp/info.json', info)
+
   ruby_path = os.path.join(current_app.root_path, "feature/projectRun.rb")
-  cmd = "ruby %s info app/temporary/info.json" % ruby_path
+  cmd = "ruby %s info app/temp/info.json" % ruby_path
+
   if os.system(cmd) == 0:
-    return utils.load_json('appInfo.json')
+    info = utils.load_json('appInfo.json')
+    images, result = info['images'], {}
+    for (name, path) in images.items():
+      # dest_name = "%s-%s.png" % (name, utils.short_uuid())
+      dest_name = name
+      dest = os.path.join(current_app.config['UPLOAD_FOLDER'], dest_name)
+      shutil.copyfile(path, dest)
+      result[name] = os.path.join(utils.image_host, dest_name)
+    info['images'] = result
+    return info
   else:
     raise("read failure")
     
