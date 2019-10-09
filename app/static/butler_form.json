@@ -23,5 +23,8 @@
   "images": {
     "AppIcon": [], 
     "LaunchImage": []
+  },
+  "files": {
+    "wtproject.lsc" : ""
   }
 }

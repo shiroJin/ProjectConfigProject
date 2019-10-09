@@ -8,6 +8,7 @@ module HeadFile
       'CFBundleVersion',
       'PRODUCT_BUNDLE_IDENTIFIER',
       'images',
+      'files',
       'projectPath',
       'tag'
     ]

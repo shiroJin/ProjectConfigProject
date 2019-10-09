@@ -25,18 +25,17 @@ module XcodeProject
     IO.write(podfile_path, content)
   end
 
-  # import header file in pch
-  def XcodeProject.config_add_headfile(pch_file_path, pre_process_macro, headfile_name)
-    index = 0
-    content = ""
-    IO.foreach(pch_file_path) do |line|
+  # import header file in config file
+  def XcodeProject.config_add_headfile(config_file_path, pre_process_macro, headfile_name)
+    index, content = 0, ""
+    IO.foreach(config_file_path) do |line|
       content += line
       if index == 1
-        content += %Q{#ifdef #{pre_process_macro}\n#import "#{headfile_name}.h"\n#endif\n}
+        content += %Q{\n#ifdef #{pre_process_macro}\n#import "#{headfile_name}.h"\n#endif\n}
       end
       index += 1   
     end
-    IO.write(pch_file_path, content)
+    IO.write(config_file_path, content)
   end
 
   # create_target method do follow things for you
@@ -97,33 +96,73 @@ module XcodeProject
     # group
     puts '[Scirpt] create private files'
     target_group_path = "#{project_path}/Butler/ButlerFor#{code.capitalize}"
-    Dir.mkdir(target_group_path)
+    Dir.mkdir(target_group_path) unless File.exist? target_group_path
     group = project.main_group.find_subpath("Butler").new_group(nil, "ButlerFor#{code.capitalize}")
 
+    pending_files = Array.new
+
     # image resource
+    puts '[Script] copy image resource'
     icon_paths = configuration["images"]["AppIcon"]
     launch_paths = configuration["images"]["LaunchImage"]
-    top_assets_path = "#{target_group_path}/assetsFor#{code.capitalize}.xcassets"
+    top_asset = "ImagesFor#{code.capitalize}.xcassets"
+    top_assets_path = File.join(target_group_path, top_asset)
     ImageAsset.new_assets_group(top_assets_path)
     ImageAsset.new_icon(icon_paths, top_assets_path)
     ImageAsset.new_launch(launch_paths, top_assets_path)
+    pending_files << top_asset
+
+    # file resource
+    puts '[Script] copy file resource'
+    configuration["files"].map { |file, path|
+      if not path.empty?
+        dest_path = File.join(target_group_path, file)
+        FileUtils.cp(path, dest_path)
+        pending_files << file
+      end
+    }
 
     # plist
-    dest_plist_path = "#{target_group_path}/#{code.capitalize}-info.plist"
+    plist_name = "#{code.capitalize}-info.plist"
+    dest_plist_path = File.join(target_group_path, plist_name)
     src_build_settings = src_target.build_settings("Distribution")
     src_plist_path = src_build_settings["INFOPLIST_FILE"].gsub('$(SRCROOT)', project_path)
     plist_hash = Plist.parse_xml(src_plist_path)
+    pending_files << plist_name
 
     plist_hash["CFBundleDisplayName"] = configuration["CFBundleDisplayName"]
     plist_hash["CFBundleShortVersionString"] = configuration["CFBundleShortVersionString"]
     plist_hash["CFBundleVersion"] = configuration["CFBundleVersion"]
+    # url types handle
+    url_types = Array.new
+    types = ['kWechatAppId', 'kTencentQQAppId', 'PRODUCT_BUNDLE_IDENTIFIER']
+    types.each do |type|
+      if not configuration[type].empty?
+        identify, scheme = "", configuration[type]
+        case type
+        when 'kWechatAppId'
+          identify = 'wx'
+        when 'kTencentQQAppId'
+          identify = 'tencent'
+          scheme = 'tencent' + scheme
+        when 'PRODUCT_BUNDLE_IDENTIFIER'
+          identify = 'product'
+        end
+        url_type = Hash(
+          'CFBundleTypeRole' => 'Editor', 
+          'CFBundleURLName' => identify,
+          'CFBundleURLSchemes' => Array[scheme]
+        )
+        url_types << url_type
+      end
+    end
+    plist_hash["CFBundleURLTypes"] = url_types
     IO.write(dest_plist_path, plist_hash.to_plist)
 
     # header file
     distribution_hash = Hash.new
     ignore_fields = HeadFile.project_fields()
     configuration.each do |key, value|
-      puts key
       unless ignore_fields.include? key
         distribution_hash[key] = value
       end
@@ -131,12 +170,17 @@ module XcodeProject
     headfile_hash = Hash["DISTRIBUTION" => distribution_hash]
     headfile_path = "#{target_group_path}/SCAppConfigFor#{code.capitalize}Butler.h"
     HeadFile.dump(headfile_path, headfile_hash)
+    pending_files << "SCAppConfigFor#{code.capitalize}Butler.h"
 
     # new ref and build file in pbxproj
-    group.new_reference("SCAppConfigFor#{code.capitalize}Butler.h")
-    assets_ref = group.new_reference("assetsFor#{code.capitalize}.xcassets")
-    plist_ref = group.new_reference("#{code.capitalize}-info.plist")
-    target.add_resources([plist_ref, assets_ref])
+    pending_resource_refs = Array.new
+    puts pending_files
+    pending_files.map { |file|
+      ref = group.new_reference(file)
+      pending_resource_refs << ref unless file.index('.h')
+    }
+    puts pending_resource_refs
+    target.add_resources(pending_resource_refs)
 
     # build settings
     puts '[Scirpt] build setting config'
@@ -164,19 +208,18 @@ module XcodeProject
 
     # 执行pod install
     puts '[Scirpt] excute pod install'
-    Dir.chdir(project_path)
-    exec 'pod install'
+    # Dir.chdir(project_path)
+    # exec 'pod install --silent'
 
   end
 
   # allow you to edit project's config, such as http address, project version, build version, etc.
-  def XcodeProject.edit_target(project_path, code, target_name, configuration)
+  def XcodeProject.edit_target(project_path, target_name, configuration)
     xcodeproj_path = xcodeproj_file(project_path)
     project = Xcodeproj::Project.open(xcodeproj_path)
     target = project.targets.find { |item| item.name == target_name }
-    unless target
-      raise "[Script] target #{target_name} not exist"
-    end
+
+    raise "[Script] target #{target_name} not exist" unless target
 
     # plist
     puts 'begin edit plist file'
@@ -216,9 +259,7 @@ module XcodeProject
       assets_name = Dir.entries(private_group).find { |f| f.index('.xcassets') }
       assets_path = File.join(private_group, assets_name)
       images.map { |key, value|
-        puts key
         if key == "AppIcon"
-          puts value
           ImageAsset.new_icon(value, assets_path)
         elsif key == "LaunchImage"
           ImageAsset.new_launch(value, assets_path)
@@ -266,7 +307,7 @@ module XcodeProject
     end
     info['images'] = assets_info
     
-    IO.write('./appInfo.json', info.to_json)
+    IO.write('./app/temp/prmsg.json', info.to_json)
   end
 
 end

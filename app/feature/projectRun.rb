@@ -20,7 +20,7 @@ if command == "new"
 
 elsif command == "edit"
   puts '[Script] edit existed target'
-  XcodeProject.edit_target(project_path, code, target_name, json)
+  XcodeProject.edit_target(project_path, target_name, json)
   
 elsif command == "info"
   puts '[Script] get project info'

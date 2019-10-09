@@ -70,7 +70,7 @@ def load_json(file_path):
 
 def dump_json(file_path, content):
   with open(file_path, 'w') as fp:
-    json.dump(content, fp)
+    json.dump(content, fp, indent=2, sort_keys=True)
 
 def app_instance(company_code):
   app = None
