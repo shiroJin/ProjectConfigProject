@@ -9,11 +9,6 @@ bp = Blueprint('image', __name__, url_prefix='/image')
 @bp.route('/upload', methods=['POST', 'GET'])
 def upload():
   images = request.files.getlist('image')
-  for image in images:
-    filename = secure_filename(image.filename)
-    if not utils.allowed_file(filename):
-      return make_response('图片格式错误', 502)
-  
   result = []
   for image in images:
     filename = secure_filename(image.filename)

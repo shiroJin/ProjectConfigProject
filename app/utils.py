@@ -26,8 +26,8 @@ def allowed_file(filename):
 
 def project_path(platform):
   if platform == 'butler':
-    # return '/Users/remain/Desktop/script-work/ButlerForFusion'
-    return '/Users/mashiro_jin/Desktop/LMWork/ButlerForFusion'
+    return '/Users/remain/Desktop/script-work/ButlerForFusion'
+    # return '/Users/mashiro_jin/Desktop/LMWork/ButlerForFusion'
   else:
     return ''
 
@@ -47,6 +47,22 @@ def redirect_remote_path(obj):
   else:
     return obj
 
+def redirect_local_path(obj):
+  if isinstance(obj, (list)):
+    result = []
+    for value in obj:
+      result.append(redirect_remote_path(value))
+    return result
+  elif isinstance(obj, (dict)):
+    result = {}
+    for key in obj:
+      result[key] = redirect_remote_path(obj[key])
+    return result
+  elif isinstance(obj, (str)):
+    return obj.replace(current_app.config["UPLOAD_FOLDER"], image_host)
+  else:
+    return obj
+
 def load_json(file_path):
   with open(file_path, 'r') as fp:
     return json.load(fp)
@@ -54,7 +70,7 @@ def load_json(file_path):
 
 def dump_json(file_path, content):
   with open(file_path, 'w') as fp:
-    json.dump(content, fp)
+    json.dump(content, fp, indent=2, sort_keys=True)
 
 def app_instance(company_code):
   app = None
