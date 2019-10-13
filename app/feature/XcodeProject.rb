@@ -282,7 +282,6 @@ module XcodeProject
     
     plist_path = build_settings["INFOPLIST_FILE"].gsub('$(SRCROOT)', proj_path)
     info_plist = Plist.parse_xml(plist_path)
-    puts plist_path
     fields =['CFBundleDisplayName', 'CFBundleShortVersionString', 'CFBundleVersion']
     fields.each do |field|
       info[field] = info_plist[field]
