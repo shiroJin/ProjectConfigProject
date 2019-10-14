@@ -57,3 +57,4 @@ def commit_changes(platform):
   app_list = utils.load_json(app_list_path)
   app_list.append(app)
   utils.dump_json(app_list_path, app_list)
+  return "ok"

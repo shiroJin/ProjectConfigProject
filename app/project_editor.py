@@ -9,7 +9,7 @@ def create_new_app(app_info):
   tag_name = app_info["tag"]
   branch_name = "proj-%s-snapshot" % app_info["kCompanyCode"]
   repo = git.Repo.init(path=app_info["projectPath"])
-  # repo.remote().pull()
+  repo.remote().pull()
   githelper.create_new_branch(repo, branch_name, tag_name)
   rubyrun.new_app(app_info)
   repo.git.add('.')
@@ -33,7 +33,7 @@ def edit_app(platform, update_info):
   update_info["privateGroup"] = app["privateGroup"]
 
   repo = git.Repo.init(path=utils.project_path(platform))
-  # repo.remote().pull()
+  repo.remote().pull()
   githelper.checkout_branch_if_needed(repo, app["branchName"])
 
   rubyrun.edit_app(update_info)
@@ -44,7 +44,7 @@ def fetch_app_info(platform, company_code):
   app["projectPath"] = utils.project_path(platform)
 
   repo = git.Repo.init(path=utils.project_path(platform))
-  # repo.remote().pull()
+  repo.remote().pull()
   githelper.checkout_branch_if_needed(repo, app["branchName"])
 
   app_info = rubyrun.fetch_app_info(app)
