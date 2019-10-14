@@ -34,8 +34,8 @@ def create_new_branch(repo, branch_name, tag_name):
   if not tag:
     raise 'no matched tag'
 
-  # head = repo.create_head(branch_name, tag.commit)
-  head = repo.create_head(branch_name, 'd494e9c1f0fd7621f33e2fda97f23c64e2377a40')
+  head = repo.create_head(branch_name, tag.commit)
+  # head = repo.create_head(branch_name, 'd494e9c1f0fd7621f33e2fda97f23c64e2377a40')
   head.checkout()
 
 def commit_changes(app, platform):
