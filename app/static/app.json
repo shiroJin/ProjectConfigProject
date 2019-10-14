@@ -2,36 +2,29 @@
   {
     "branchName": "script",
     "code": "mh",
-    "displayName": "\u4e00\u7c73\u667a\u670d",
+    "displayName": "一米智服",
     "privateGroup": "ButlerForRemain",
     "targetName": "ButlerForRemain"
   },
   {
     "branchName": "proj-yz-snapshot",
     "code": "yz",
-    "displayName": "\u56ed\u533a\u7ba1\u7406",
+    "displayName": "园区管理",
     "privateGroup": "ButlerForTown",
     "targetName": "ButlerForTown"
   },
   {
     "branchName": "proj-zhwg-snapshot",
     "code": "wg",
-    "displayName": "\u5c0f\u9547\u7ba1\u7406",
+    "displayName": "小镇管理",
     "privateGroup": "ButlerForZhwg",
     "targetName": "ButlerForZhwg"
   },
   {
     "branchName": "proj-xyjnh-snapshot",
     "code": "ss",
-    "displayName": "\u6167\u7ba1\u7406",
+    "displayName": "慧管理",
     "privateGroup": "Butler",
     "targetName": "Butler"
-  },
-  {
-    "branchName": "proj-xyz-snapshot",
-    "code": "xyz",
-    "displayName": "\u65b0\u9879\u76ee\u540d\u79f0",
-    "privateGroup": "ButlerForXyz",
-    "targetName": "ButlerForXyz"
   }
 ]
