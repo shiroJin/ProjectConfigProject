@@ -63,9 +63,8 @@ target2_resource = target2.build_phases.find { |p| p.instance_of? Xcodeproj::Pro
 result1, result2 = files_diff(target1_resource.files, target2_resource.files)
 puts "build resource diff:"
 puts ">>>>> #{target1_name}\n#{result1.sort}\n===== #{target2_name}\n#{result2.sort}\n<<<<<"
-pending = resutl1.select do |ref|
-  !ref.full_path.include? ignore_path
-end
+pending = resutl1.select { |ref| !ref.full_path.include? ignore_path }
+puts "prepare add resource: #{pending}"
 target2.add_resources(pending)
 
 # build files
@@ -75,4 +74,5 @@ result1, result2 = files_diff(source_1.files, source_2.files)
 puts "build source diff:"
 puts ">>>>> #{target1_name}\n#{result1.sort}\n===== #{target2_name}\n#{result2.sort}\n<<<<<"
 pending = resutl1.select { |ref| !ref.full_path.include? ignore_path }
+puts "prepare add source: #{pending}"
 target2.add_sources(pending)

@@ -1,3 +1,4 @@
+# -*- coding:utf-8 -*-
 from uuid import uuid4
 from flask import current_app
 import json
@@ -70,7 +71,7 @@ def load_json(file_path):
 
 def dump_json(file_path, content):
   with open(file_path, 'w') as fp:
-    json.dump(content, fp, indent=2, sort_keys=True)
+    json.dump(content, fp, indent=2, sort_keys=True, ensure_ascii=False)
 
 def app_instance(company_code):
   app = None

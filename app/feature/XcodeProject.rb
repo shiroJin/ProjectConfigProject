@@ -300,8 +300,11 @@ module XcodeProject
       extname = entry.split('.').last
       absolute_path = File.join(xcassets, entry)
       if ['appiconset', 'launchimage', 'imageset'].include? extname
-        path = File.join(absolute_path, Dir.entries(absolute_path).find { |f| f.index('png') })
-        assets_info[filename] = path
+        image_name = Dir.entries(absolute_path).find { |f| f.index('png') }
+        if image_name
+          path = File.join(absolute_path, image_name)
+          assets_info[filename] = path
+        end
       end
     end
     info['images'] = assets_info

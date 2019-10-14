@@ -2,21 +2,11 @@
 require 'xcodeproj'
 
 class Slot
+  attr_accessor :display_name, :value, :file_ref
   def initialize
     @display_name = ""
     @value = 0
-  end
-  def display_name
-    @display_name
-  end
-  def value
-    @value
-  end
-  def display_name=(name)
-    @display_name = name
-  end
-  def value=(value)
-    @value = value
+    @file_ref = nil
   end
 end
 
@@ -103,3 +93,7 @@ source_hash.map{ |key,value|
 }
 puts "build source diff:"
 puts ">>>>>#{target1_name}\n#{result1.sort}\n=====#{target2_name}\n#{result2.sort}\n<<<<<"
+
+def sync_target
+  ignore_file
+end
